@@ -8,7 +8,7 @@ module.exports = {
         files: [{
             expand: true,
             cwd: '<%= config.dist %>/',
-            src: '**/*.js',
+            src: ['**/*.js', '!<%= config.src %>/main.js'],
             dest: '<%= config.dist %>/',
             ext: '.min.js'
             // rename: function (dest, src) {

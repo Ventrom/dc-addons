@@ -14,10 +14,11 @@
     "noempty": true,
     "nonbsp": true,
     "nonew": true,
+    "esversion": 6,
     "quotmark": "single",
     "sub": true,
     "undef": true,
-    "unused": "vars",
+    "unused": false,
     "globals" : {
         "__dirname": false,
         "console": false,
@@ -29,9 +30,10 @@
         "module": false,
         "process": false,
         "require": false,
-        "L": false,
+        "L": true,
         "google": false,
         "MarkerClusterer": false,
         "angular": false
     }
 }
+

@@ -1,9 +1,13 @@
 /*!
- * dc-addons-cleanup v0.0.1
+ * dc-addons-cleanup v0.2.1
  *
- * 2016-09-02 16:59:22
+ * 2016-09-07 14:33:20
  *
  */
+var dc = require('dc-js');
+var L = require('leaflet');
+require('leaflet.markercluster');
+
 if (!dc.utils.getAllFilters) {
     dc.utils.getAllFilters = function () {
         var result = {};
@@ -148,6 +152,7 @@ if (!dc.utils.getAllFilters) {
         _chart = dc.baseMapChart(_chart);
 
         _chart._doRender = function () {
+            if (_chart.map() !== undefined) { _chart.map().remove(); }
             var _map = L.map(_chart.root().node(), _chart.mapOptions());
 
             if (_chart.center() && _chart.zoom()) {
@@ -796,6 +801,24 @@ dc.leafletLegend = function () {
 
     return _legend;
 };
+
+(function () {
+    'use strict';
+
+    var topojson = require('topojson');
+    L.TopoJSON = L.GeoJSON.extend({
+        addData: function (jsonData) {
+            if (jsonData.type === 'Topology') {
+                for (var key in jsonData.objects) {
+                    var geojson = topojson.feature(jsonData, jsonData.objects[key]);
+                    L.GeoJSON.prototype.addData.call(this, geojson);
+                }
+            } else {
+                L.GeoJSON.prototype.addData.call(this, jsonData);
+            }
+        }
+    });
+})();
 
 (function () {
     'use strict';
@@ -2032,171 +2055,6 @@ dc.leafletLegend = function () {
 (function () {
     'use strict';
 
-    angular.module('AngularDc', []);
-})();
-
-(function () {
-    'use strict';
-
-    var dcChart = function ($timeout, $compile) {
-        return {
-            restrict: 'E',
-            scope: {
-                chart: '=',
-                type: '=',
-                group: '=',
-                options: '=',
-                filters: '=',
-                reset: '=',
-            },
-            link: function ($scope, element) {
-                $scope.drawChart = function () {
-                    var i;
-
-                    if (typeof $scope.type === 'string' && typeof $scope.options === 'object') {
-                        $scope.cleanup();
-
-                        if ($scope.reset) {
-                            $scope.resetChart = function () {
-                                $scope.chart.filterAll();
-                                dc.redrawAll();
-                            };
-                            element.append('<span class="reset" style="visibility:hidden;">Current filter: <span class="filter"></span></span>');
-                            element.append($compile('<a class="reset" style="visibility:hidden;" ng-click="resetChart()">reset</a>')($scope));
-                        }
-
-                        $scope.chart = dc[$scope.type](element[0], $scope.group || undefined);
-
-                        if ($scope.type === 'compositeChart') {
-                            for (i = 0; i < $scope.options.compose.length; i++) {
-                                if ($scope.options.compose[i].type && typeof $scope.options.compose[i].useRightYAxis !== 'function') {
-                                    $scope.options.compose[i] =
-                                        dc[$scope.options.compose[i].type]($scope.chart)
-                                            .options($scope.options.compose[i]);
-                                }
-                            }
-                        }
-
-                        $scope.chart.options($scope.options);
-                        $scope.chart.render();
-
-                        if ($scope.filters) {
-                            for (i = 0; i < $scope.filters.length; i++) {
-                                $scope.chart.filter($scope.filters[i]);
-                            }
-                        }
-
-                        // set the model for custom use
-                        $scope.chart = $scope.chart;
-
-                        $scope.resize();
-                    }
-                };
-
-                $scope.resize = function () {
-                    try {
-                        if ($scope.chart.data().length > 0) {
-                            $scope.chart.root().select('svg').attr('width', '100%');
-                            $timeout(function () {
-                                if ($scope.chart.hasOwnProperty('rescale')) {
-                                    $scope.chart.rescale();
-                                }
-                                dc.redrawAll();
-                            }, 100);
-                        }
-                    } catch (err) {
-
-                    }
-                };
-
-                $scope.cleanup = function () {
-                    if ($scope.chart) {
-                        if ($scope.chart && $scope.chart.destroy) {
-                            $scope.chart.destroy();
-                        }
-
-                        dc.deregisterChart($scope.chart);
-                    }
-                };
-
-                //--------------------
-                // watchers
-                //--------------------
-
-                $scope.$watch('type', function () {
-                    if ($scope.type) {
-                        $scope.drawChart();
-                    }
-                });
-
-                $scope.$watch('options', function () {
-                    if ($scope.options) {
-                        $scope.drawChart();
-                    }
-                });
-
-                $scope.$watch('filters', function () {
-                    if ($scope.filters) {
-                        $scope.drawChart();
-                    }
-                });
-
-                //--------------------
-                // destroy
-                //--------------------
-
-                $scope.$on('$destroy', function () {
-                    $scope.cleanup();
-                });
-            }
-        };
-    };
-
-    dcChart.$inject = ['$timeout', '$compile'];
-
-    angular.module('AngularDc').directive('dcChart', dcChart);
-
-})();
-
-(function () {
-    'use strict';
-
-    var dcServerChart = function () {
-        return {
-            restrict: 'E',
-            scope: {
-                options: '=',
-                conditions: '=',
-            },
-            link: function ($scope, element) {
-                var chart = dc.serverChart(element[0]),
-                    hasInit = false;
-
-                $scope.$watch('options', function () {
-                    if (!hasInit && $scope.options) {
-                        chart.options($scope.options).render();
-                        hasInit = true;
-                    }
-                });
-
-                $scope.$watch('conditions', function () {
-                    if ($scope.conditions) {
-                        chart.conditions($scope.conditions);
-                    }
-                });
-            }
-        };
-    };
-
-    dcServerChart.$inject = [];
-
-    angular.module('AngularDc').directive('dcServerChart', dcServerChart);
-
-})();
-
-(function () {
-    'use strict';
-
     if (dc.paginationMixin) {
         return false;
     }
@@ -2361,3 +2219,8 @@ dc.leafletLegend = function () {
         return _chart.anchor(parent, chartGroup);
     };
 })();
+
+module.exports = {
+    dc: dc,
+    L: L
+};

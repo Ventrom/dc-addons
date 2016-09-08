@@ -1,7 +1,7 @@
 /*!
- * dc-addons-cleanup v0.0.1
+ * dc-addons-cleanup v0.2.1
  *
- * 2016-09-02 16:59:22
+ * 2016-09-07 14:33:20
  *
  */
 // Code copied and changed from https://github.com/vlandham/gates_bubbles

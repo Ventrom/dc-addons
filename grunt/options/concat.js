@@ -14,6 +14,7 @@ module.exports = {
             '<%= config.src %>/<%= config.scripts %>/leaflet-marker-chart.js',
             '<%= config.src %>/<%= config.scripts %>/leaflet-custom-chart.js',
             '<%= config.src %>/<%= config.scripts %>/leaflet-legend.js',
+            '<%= config.src %>/<%= config.scripts %>/leaflet-topojson.js'
         ]
     },
     google: {
@@ -110,6 +111,7 @@ module.exports = {
     build: {
         dest: '<%= config.dist %>/dc-addons.js',
         src: [
+            '<%= config.src %>/main.js',
             '<%= config.src %>/<%= config.scripts %>/utils.js',
             '<%= config.src %>/<%= config.scripts %>/base-map-chart.js',
             '<%= config.src %>/<%= config.scripts %>/base-leaflet-chart.js',
@@ -117,6 +119,7 @@ module.exports = {
             '<%= config.src %>/<%= config.scripts %>/leaflet-marker-chart.js',
             '<%= config.src %>/<%= config.scripts %>/leaflet-custom-chart.js',
             '<%= config.src %>/<%= config.scripts %>/leaflet-legend.js',
+            '<%= config.src %>/<%= config.scripts %>/leaflet-topojson.js',
             '<%= config.src %>/<%= config.scripts %>/base-google-chart.js',
             '<%= config.src %>/<%= config.scripts %>/google-choropleth-chart.js',
             '<%= config.src %>/<%= config.scripts %>/google-marker-chart.js',
@@ -131,6 +134,7 @@ module.exports = {
             '<%= config.src %>/<%= config.scripts %>/angular-server-chart.js',
             '<%= config.src %>/<%= config.scripts %>/pagination-mixin.js',
             '<%= config.src %>/<%= config.scripts %>/hexbin-chart.js',
+            '<%= config.src %>/exports.js'
         ]
-    },
+    }
 };

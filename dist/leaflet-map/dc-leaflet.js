@@ -1,7 +1,7 @@
 /*!
- * dc-addons-cleanup v0.0.1
+ * dc-addons-cleanup v0.2.1
  *
- * 2016-09-02 16:59:22
+ * 2016-09-07 14:33:20
  *
  */
 (function () {
@@ -134,6 +134,7 @@
         _chart = dc.baseMapChart(_chart);
 
         _chart._doRender = function () {
+            if (_chart.map() !== undefined) { _chart.map().remove(); }
             var _map = L.map(_chart.root().node(), _chart.mapOptions());
 
             if (_chart.center() && _chart.zoom()) {
@@ -782,3 +783,21 @@ dc.leafletLegend = function () {
 
     return _legend;
 };
+
+(function () {
+    'use strict';
+
+    var topojson = require('topojson');
+    L.TopoJSON = L.GeoJSON.extend({
+        addData: function (jsonData) {
+            if (jsonData.type === 'Topology') {
+                for (var key in jsonData.objects) {
+                    var geojson = topojson.feature(jsonData, jsonData.objects[key]);
+                    L.GeoJSON.prototype.addData.call(this, geojson);
+                }
+            } else {
+                L.GeoJSON.prototype.addData.call(this, jsonData);
+            }
+        }
+    });
+})();

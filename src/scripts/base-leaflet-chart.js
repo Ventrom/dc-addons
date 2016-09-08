@@ -9,6 +9,7 @@
         _chart = dc.baseMapChart(_chart);
 
         _chart._doRender = function () {
+            if (_chart.map() !== undefined) { _chart.map().remove(); }
             var _map = L.map(_chart.root().node(), _chart.mapOptions());
 
             if (_chart.center() && _chart.zoom()) {
