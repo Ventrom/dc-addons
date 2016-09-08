@@ -5,7 +5,8 @@
         return false;
     }
 
-    dc.paginationMixin = function (_chart) {
+    // optional page size parameter
+    dc.paginationMixin = function (_chart, size) {
 
         if (_chart) {
             // chart does not have a y axis if it is a row chart, so don't make it elastic
@@ -19,7 +20,7 @@
             _chart.pagination.allData = _chart.group().all();
             // page information
             _chart.pagination.currentPage = 1;
-            _chart.pagination.pageSize = 5;
+            _chart.pagination.pageSize = size || 5;
             _chart.pagination.pageCount = Math.ceil(_chart.pagination.allData.length / _chart.pagination.pageSize);
             // page controls
             _chart.pagination.setPage = function (page) {
@@ -39,6 +40,26 @@
                         _chart.tip.reinit();
                     }
                 }
+            };
+            _chart.pagination.setPageSize = function (pageSize) {
+                if (pageSize < 1) {
+                    pageSize = 1;
+                }
+                if (pageSize > _chart.pagination.allData.length) {
+                    pageSize = _chart.pagination.allData.length;
+                }
+                if (pageSize !== _chart.pagination.pageSize) {
+                    _chart.pagination.pageSize = pageSize;
+                    _chart.pagination.currentPage = 1;
+                    _chart.pagination.setPageCount();
+                    _chart.redraw();
+                    if (_chart.tip) {
+                        _chart.tip.reinit();
+                    }
+                }
+            };
+            _chart.pagination.setPageCount = function () {
+                _chart.pagination.pageCount = Math.ceil(_chart.pagination.allData.length / _chart.pagination.pageSize);
             };
             _chart.pagination.previous = function () {
                 _chart.pagination.setPage(_chart.pagination.currentPage - 1);
