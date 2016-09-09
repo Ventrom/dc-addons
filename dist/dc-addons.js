@@ -1,7 +1,7 @@
 /*!
  * dc-addons v0.13.5
  *
- * 2016-08-17 08:09:00
+ * 2016-09-09 17:58:10
  *
  */
 if (!dc.utils.getAllFilters) {
@@ -322,6 +322,7 @@ if (!dc.utils.getAllFilters) {
         var _rebuildMarkers = false;
         var _brushOn = true;
         var _filterByArea = false;
+        var _filterByAreaControl = false;
 
         var _innerFilter = false;
         var _zooming = false;
@@ -380,6 +381,38 @@ if (!dc.utils.getAllFilters) {
                 _layerGroup = new L.LayerGroup();
             }
             _chart.map().addLayer(_layerGroup);
+
+            if (_filterByAreaControl) {
+                var FilterControl = L.Control.extend({
+                    options: {
+                        position: 'topleft'
+                    },
+
+                    onAdd: function (map) {
+                        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-filter');
+                        if (!_filterByArea) {
+                            L.DomUtil.addClass(container, 'disabled');
+                        }
+                        container.onclick = function () {
+                            _filterByArea = !_filterByArea;
+                            if (_filterByArea) {
+                                L.DomUtil.removeClass(container, 'disabled');
+                                _chart.filter(null);
+                                _innerFilter = true;
+                                _chart.filter(_chart.map().getBounds());
+                                _innerFilter = false;
+                            } else {
+                                L.DomUtil.addClass(container, 'disabled');
+                                _chart.filter(null);
+                            }
+                            dc.redrawAll(_chart.chartGroup());
+                        };
+                        return container;
+                    }
+                });
+
+                _chart.map().addControl(new FilterControl());
+            }
         };
 
         _chart._doRedraw = function () {
@@ -520,6 +553,14 @@ if (!dc.utils.getAllFilters) {
                 return _filterByArea;
             }
             _filterByArea = _;
+            return _chart;
+        };
+
+        _chart.filterByAreaControl = function (_) {
+            if (!arguments.length) {
+                return _filterByAreaControl;
+            }
+            _filterByAreaControl = _;
             return _chart;
         };
 
