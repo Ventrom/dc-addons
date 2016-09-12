@@ -1,7 +1,7 @@
 /*!
  * dc-addons v0.13.5
  *
- * 2016-08-17 08:09:00
+ * 2016-09-12 20:05:59
  *
  */
 if (!dc.utils.getAllFilters) {
@@ -322,6 +322,7 @@ if (!dc.utils.getAllFilters) {
         var _rebuildMarkers = false;
         var _brushOn = true;
         var _filterByArea = false;
+        var _scale = d3.scale.linear();
 
         var _innerFilter = false;
         var _zooming = false;
@@ -341,6 +342,10 @@ if (!dc.utils.getAllFilters) {
             return _chart.keyAccessor()(d);
         };
 
+        var _accessor = function (d) {
+            return _chart.valueAccessor()(d);
+        };
+
         var _marker = function (d) {
             var marker = new L.Marker(_chart.toLocArray(_chart.locationAccessor()(d)),{
                 title: _chart.renderTitle() ? _chart.title()(d) : '',
@@ -352,8 +357,16 @@ if (!dc.utils.getAllFilters) {
             return marker;
         };
 
-        var _icon = function (d,map) {
-            return new L.Icon.Default();
+        var _icon = function (d, map) {
+            var currentValue = _chart.valueAccessor()(d);
+            var currentColor = _chart.scale()(currentValue);
+            var styleString = 'color: ' + currentColor;
+            var htmlString = '<div><i class="big map pin icon" style="' + styleString + '"></i></div>';
+            var divIcon = L.divIcon({className: 'geo-marker-icon',
+                                     html: htmlString,
+                                     iconSize: [20,30]});
+
+            return divIcon;
         };
 
         var _popup = function (d,marker) {
@@ -435,6 +448,14 @@ if (!dc.utils.getAllFilters) {
             _fitOnRender = false;
         };
 
+        _chart.valueAccessor = function (_) {
+            if (!arguments.length) {
+                return _accessor;
+            }
+            _accessor = _;
+            return _chart;
+        };
+
         _chart.locationAccessor = function (_) {
             if (!arguments.length) {
                 return _location;
@@ -456,6 +477,14 @@ if (!dc.utils.getAllFilters) {
                 return _icon;
             }
             _icon = _;
+            return _chart;
+        };
+
+        _chart.scale = function (_) {
+            if (!arguments.length) {
+                return _scale;
+            }
+            _scale = _;
             return _chart;
         };
 
